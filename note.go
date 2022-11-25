@@ -6,6 +6,6 @@ type Note struct {
 	Class
 	Accidental
 	Octave
-	Pitch  float64
+	Pitch
 	Length time.Duration
 }
