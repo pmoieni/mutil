@@ -10,7 +10,7 @@ func (p Pitch) ToNote() *Note {
 	return &Note{}
 }
 
-func (p Pitch) AutoCorrelate(buf []float64, sampleRate float64, thres float64) float64 {
+func AutoCorrelate(buf []float64, sampleRate float64, thres float64) float64 {
 	size := len(buf)
 	var rms float64 = 0
 	for _, v := range buf {
