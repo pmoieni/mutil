@@ -6,13 +6,18 @@ import (
 
 type Pitch float64
 
-func (p Pitch) ToNote() *Note {
-	return &Note{}
+var octaveLen = 7.0
+
+func PitchToNote(p Pitch) *Note {
+	num := octaveLen * (math.Log(float64(p)/440) / math.Log(2))
+	mnum := math.Round(num) + 69
+
+	return MIDINumToNote(int(mnum))
 }
 
-func AutoCorrelate(buf []float64, sampleRate float64, thres float64) float64 {
+func AutoCorrelate(buf []float64, sampleRate float64, thres float64) Pitch {
 	size := len(buf)
-	var rms float64 = 0
+	rms := 0.0
 	for _, v := range buf {
 		val := v
 		rms += val * val
@@ -54,17 +59,17 @@ func AutoCorrelate(buf []float64, sampleRate float64, thres float64) float64 {
 		d++
 	}
 
-	maxval := -1.0
-	maxpos := -1
+	mv := -1.0
+	mp := -1
 
 	for i := d; i < size; i++ {
-		if c[i] > maxval {
-			maxval = c[i]
-			maxpos = i
+		if c[i] > mv {
+			mv = c[i]
+			mp = i
 		}
 	}
 
-	t0 := maxpos
+	t0 := mp
 
 	x1 := c[t0-1]
 	x2 := c[t0]
@@ -73,5 +78,5 @@ func AutoCorrelate(buf []float64, sampleRate float64, thres float64) float64 {
 	a := (x1 + x3 - 2*x2) / 2
 	b := (x3 - x1) / 2
 
-	return sampleRate / (float64(t0) - b/(2*a))
+	return Pitch(sampleRate / (float64(t0) - b/(2*a)))
 }
