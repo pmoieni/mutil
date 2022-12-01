@@ -37,46 +37,6 @@ func Abs(x float32) float32 {
 	return x
 }
 
-// Copysign returns a value with the magnitude
-// of x and the sign of y.
-func Copysign(x, y float32) float32 {
-	const sign = 1 << 31
-	return math.Float32frombits(math.Float32bits(x)&^sign | math.Float32bits(y)&sign)
-}
-
-// Hypot returns Sqrt(p*p + q*q), taking care to avoid
-// unnecessary overflow and underflow.
-//
-// Special cases are:
-//
-//	Hypot(±Inf, q) = +Inf
-//	Hypot(p, ±Inf) = +Inf
-//	Hypot(NaN, q) = NaN
-//	Hypot(p, NaN) = NaN
-func Hypot(p, q float32) float32 {
-	// special cases
-	switch {
-	case IsInf(p, 0) || IsInf(q, 0):
-		return Inf(1)
-	case IsNaN(p) || IsNaN(q):
-		return NaN()
-	}
-	if p < 0 {
-		p = -p
-	}
-	if q < 0 {
-		q = -q
-	}
-	if p < q {
-		p, q = q, p
-	}
-	if p == 0 {
-		return 0
-	}
-	q = q / p
-	return p * Sqrt(1+q*q)
-}
-
 // Inf returns positive infinity if sign >= 0, negative infinity if sign < 0.
 func Inf(sign int) float32 {
 	var v uint32
@@ -107,59 +67,6 @@ func IsNaN(f float32) (is bool) {
 	//	x := math.Float32bits(f);
 	//	return uint32(x>>shift)&mask == mask && x != uinf && x != uneginf
 	return f != f
-}
-
-// Max returns the larger of x or y.
-//
-// Special cases are:
-//
-//	Max(x, +Inf) = Max(+Inf, x) = +Inf
-//	Max(x, NaN) = Max(NaN, x) = NaN
-//	Max(+0, ±0) = Max(±0, +0) = +0
-//	Max(-0, -0) = -0
-func Max(x, y float32) float32 {
-	// special cases
-	switch {
-	case IsInf(x, 1) || IsInf(y, 1):
-		return Inf(1)
-	case IsNaN(x) || IsNaN(y):
-		return NaN()
-	case x == 0 && x == y:
-		if Signbit(x) {
-			return y
-		}
-		return x
-	}
-	if x > y {
-		return x
-	}
-	return y
-}
-
-// Min returns the smaller of x or y.
-//
-// Special cases are:
-//
-//	Min(x, -Inf) = Min(-Inf, x) = -Inf
-//	Min(x, NaN) = Min(NaN, x) = NaN
-//	Min(-0, ±0) = Min(±0, -0) = -0
-func Min(x, y float32) float32 {
-	// special cases
-	switch {
-	case IsInf(x, -1) || IsInf(y, -1):
-		return Inf(-1)
-	case IsNaN(x) || IsNaN(y):
-		return NaN()
-	case x == 0 && x == y:
-		if Signbit(x) {
-			return x
-		}
-		return y
-	}
-	if x < y {
-		return x
-	}
-	return y
 }
 
 // NaN returns an IEEE 754 “not-a-number” value.
