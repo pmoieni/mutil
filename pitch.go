@@ -59,12 +59,12 @@ func AutoCorrelate(buf [bufferSize]float32, sampleRate, thres float32) Pitch {
 	}
 
 	d := 0
-	for c[d] > c[d+1] {
+	for d < size-2 && c[d] > c[d+1] {
 		d++
 	}
 
-	var mv float32 = -1.0
-	var mp int = -1
+	var mv float32 = -1.0 // max value
+	var mp int = -1       // max position
 
 	for i := d; i < size; i++ {
 		if c[i] > mv {
@@ -74,6 +74,10 @@ func AutoCorrelate(buf [bufferSize]float32, sampleRate, thres float32) Pitch {
 	}
 
 	t0 := mp
+
+	if mp < 1 {
+		return -1
+	}
 
 	x1 := c[t0-1]
 	x2 := c[t0]
