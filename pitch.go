@@ -1,28 +1,28 @@
 package mutil
 
 import (
-	"math"
+	"github.com/chewxy/math32"
 )
 
-type Pitch float64
+type Pitch float32
 
-var octaveLen = 7.0
+var octaveLen float32 = 7
 
 func PitchToNote(p Pitch) *Note {
-	num := octaveLen * (math.Log(float64(p)/440) / math.Log(2))
-	mnum := math.Round(num) + 69
+	num := octaveLen * (math32.Log(float32(p/440)) / math32.Log(2))
+	mnum := math32.Round(num) + 69
 
 	return MIDINumToNote(int(mnum))
 }
 
-func AutoCorrelate(buf []float64, sampleRate float64, thres float64) Pitch {
+func AutoCorrelate(buf []float32, sampleRate float32, thres float32) Pitch {
 	size := len(buf)
-	rms := 0.0
+	var rms float32 = 0
 	for _, v := range buf {
 		val := v
 		rms += val * val
 	}
-	rms = math.Sqrt(rms / float64(size))
+	rms = math32.Sqrt(rms / float32(size))
 	if rms < thres {
 		return -1
 	}
@@ -31,14 +31,14 @@ func AutoCorrelate(buf []float64, sampleRate float64, thres float64) Pitch {
 	r2 := size - 1
 
 	for i := 0; i < size/2; i++ {
-		if math.Abs(buf[i]) < thres {
+		if math32.Abs(buf[i]) < thres {
 			r1 = i
 			break
 		}
 	}
 
 	for i := 0; i < size/2; i++ {
-		if math.Abs(buf[size-i]) < thres {
+		if math32.Abs(buf[size-i]) < thres {
 			r2 = size - i
 			break
 		}
@@ -47,7 +47,7 @@ func AutoCorrelate(buf []float64, sampleRate float64, thres float64) Pitch {
 	buf = buf[r1:r2]
 	size = len(buf)
 
-	c := make([]float64, size)
+	c := make([]float32, size)
 	for i := 0; i < size; i++ {
 		for j := 0; j < size-i; j++ {
 			c[i] = c[i] + buf[j]*buf[j+i]
@@ -59,8 +59,8 @@ func AutoCorrelate(buf []float64, sampleRate float64, thres float64) Pitch {
 		d++
 	}
 
-	mv := -1.0
-	mp := -1
+	var mv float32 = -1.0
+	var mp int = -1
 
 	for i := d; i < size; i++ {
 		if c[i] > mv {
@@ -78,5 +78,5 @@ func AutoCorrelate(buf []float64, sampleRate float64, thres float64) Pitch {
 	a := (x1 + x3 - 2*x2) / 2
 	b := (x3 - x1) / 2
 
-	return Pitch(sampleRate / (float64(t0) - b/(2*a)))
+	return Pitch(sampleRate / (float32(t0) - b/(2*a)))
 }
