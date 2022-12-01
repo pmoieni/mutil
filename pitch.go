@@ -15,7 +15,9 @@ func PitchToNote(p Pitch) *Note {
 	return MIDINumToNote(int(mnum))
 }
 
-func AutoCorrelate(buf []float32, sampleRate float32, thres float32) Pitch {
+const bufferSize int = 2048
+
+func AutoCorrelate(buf [bufferSize]float32, sampleRate, thres float32) Pitch {
 	size := len(buf)
 	var rms float32 = 0
 	for _, v := range buf {
@@ -44,7 +46,9 @@ func AutoCorrelate(buf []float32, sampleRate float32, thres float32) Pitch {
 		}
 	}
 
-	buf = buf[r1:r2]
+	// (reflect.TypeOf(buf[r1:r2]) != reflect.TypeOf(buf)) -> []float32 != [2048]float32
+	bufSlice := buf[r1:r2] // first save into a []float32 slice
+	copy(buf[:], bufSlice) // then copy into [2048]float32 array (type of)
 	size = len(buf)
 
 	c := make([]float32, size)
