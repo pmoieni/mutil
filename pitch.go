@@ -1,7 +1,7 @@
 package mutil
 
 import (
-	"github.com/chewxy/math32"
+	"github.com/pmoieni/mutil/internal/math32"
 )
 
 type Pitch float32
@@ -9,7 +9,7 @@ type Pitch float32
 var octaveLen float32 = 7
 
 func PitchToNote(p Pitch) *Note {
-	num := octaveLen * (math32.Log(float32(p/440)) / math32.Log(2))
+	num := octaveLen * (math32.Log(float32(p)/440) / math32.Log(2))
 	mnum := math32.Round(num) + 69
 
 	return MIDINumToNote(int(mnum))
