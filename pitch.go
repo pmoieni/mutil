@@ -1,30 +1,34 @@
 package mutil
 
 import (
+	"math"
+
+	"github.com/pmoieni/mutil/internal/consts"
 	"github.com/pmoieni/mutil/internal/math32"
 )
 
 type Pitch float32
 
-var octaveLen float32 = 7
+const (
+	bufferSize int = 2048 // this should be dynamic
+)
 
 func PitchToNote(p Pitch) *Note {
-	num := octaveLen * (math32.Log(float32(p)/440) / math32.Log(2))
-	mnum := math32.Round(num) + 69
+	num := consts.OctaveLen * (math32.Log(float32(p)/440) / math32.Log(2))
+	var mnum MIDINumber
+	mnum = MIDINumber(math32.Round(num) + 69)
 
-	return MIDINumToNote(int(mnum))
+	return mnum.ToNote()
 }
 
-const bufferSize int = 2048
-
-func AutoCorrelate(buf [bufferSize]float32, sampleRate, thres float32) Pitch {
+func AutoCorrelate(buf [bufferSize]float32, sampleRate, thres float64) Pitch {
 	size := len(buf)
-	var rms float32 = 0
+	var rms float64 = 0
 	for _, v := range buf {
-		val := v
+		val := float64(v)
 		rms += val * val
 	}
-	rms = math32.Sqrt(rms / float32(size))
+	rms = math.Sqrt(rms / float64(size))
 	if rms < thres {
 		return -1
 	}
@@ -33,14 +37,14 @@ func AutoCorrelate(buf [bufferSize]float32, sampleRate, thres float32) Pitch {
 	r2 := size - 1
 
 	for i := 0; i < size/2; i++ {
-		if math32.Abs(buf[i]) < thres {
+		if math.Abs(float64(buf[i])) < thres {
 			r1 = i
 			break
 		}
 	}
 
 	for i := 0; i < size/2; i++ {
-		if math32.Abs(buf[size-i]) < thres {
+		if math.Abs(float64(buf[size-i])) < thres {
 			r2 = size - i
 			break
 		}
@@ -63,12 +67,12 @@ func AutoCorrelate(buf [bufferSize]float32, sampleRate, thres float32) Pitch {
 		d++
 	}
 
-	var mv float32 = -1.0 // max value
+	var mv float64 = -1.0 // max value
 	var mp int = -1       // max position
 
 	for i := d; i < size; i++ {
-		if c[i] > mv {
-			mv = c[i]
+		if float64(c[i]) > mv {
+			mv = float64(c[i])
 			mp = i
 		}
 	}
@@ -83,8 +87,16 @@ func AutoCorrelate(buf [bufferSize]float32, sampleRate, thres float32) Pitch {
 	x2 := c[t0]
 	x3 := c[t0+1]
 
-	a := (x1 + x3 - 2*x2) / 2
-	b := (x3 - x1) / 2
+	a := float64((x1 + x3 - 2*x2) / 2)
+	b := float64((x3 - x1) / 2)
 
-	return Pitch(sampleRate / (float32(t0) - b/(2*a)))
+	return Pitch(sampleRate / (float64(t0) - b/(2*a)))
+}
+
+func (p Pitch) CentsOff(mnum MIDINumber) float64 {
+	return math.Floor(consts.OctaveLen *
+		100 *
+		math.Log(float64(p)/float64(mnum.ToPitch())) /
+		math.Log(2),
+	)
 }
