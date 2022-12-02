@@ -1,6 +1,10 @@
 package mutil
 
-import "math"
+import (
+	"math"
+
+	"github.com/pmoieni/mutil/internal/consts"
+)
 
 type NoteState string
 
@@ -9,14 +13,16 @@ const (
 	NOTE_OFF NoteState = "NOTE_OFF"
 )
 
+type MIDINumber int
+
 type MIDI struct {
 	State    NoteState
 	Channel  int
-	Number   int
+	Number   MIDINumber
 	Velocity int
 }
 
-func MIDINumToNote(num int) *Note {
+func (num MIDINumber) ToNote() *Note {
 	type note struct {
 		Class
 		Accidental
@@ -73,12 +79,16 @@ func MIDINumToNote(num int) *Note {
 		},
 	}
 
-	n := nl[num%len(nl)]
-	no := int(math.Abs(float64(num / len(nl))))
+	n := nl[int(num)%len(nl)]
+	no := int(math.Abs(float64(int(num) / len(nl))))
 
 	return &Note{
 		Class:      n.Class,
 		Accidental: Accidental(n.Accidental),
 		Octave:     Octave(no),
 	}
+}
+
+func (num MIDINumber) ToPitch() Pitch {
+	return Pitch(440 * math.Pow(2, float64((num-2)/consts.OctaveLen)))
 }
