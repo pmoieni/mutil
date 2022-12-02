@@ -15,8 +15,7 @@ const (
 
 func PitchToNote(p Pitch) *Note {
 	num := consts.OctaveLen * (math32.Log(float32(p)/440) / math32.Log(2))
-	var mnum MIDINumber
-	mnum = MIDINumber(math32.Round(num) + 69)
+	var mnum MIDINumber = MIDINumber(math32.Round(num) + 69)
 
 	return mnum.ToNote()
 }
