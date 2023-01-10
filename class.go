@@ -1,5 +1,7 @@
 package mutil
 
+import "github.com/pmoieni/mutil/internal/consts"
+
 type Class int
 
 const (
@@ -20,8 +22,7 @@ func (c Class) DiffUp(from Class) int {
 	} else if from > c {
 		return int(from - c)
 	} else {
-		ol := 7 // octave length
-		return ol - int(c-from)
+		return consts.OctaveLen - int(c-from)
 	}
 }
 
@@ -33,7 +34,6 @@ func (c Class) DiffDown(from Class) int {
 	} else if c > from {
 		return int(c - from)
 	} else {
-		ol := 7
-		return ol - int(from-c)
+		return consts.OctaveLen - int(from-c)
 	}
 }

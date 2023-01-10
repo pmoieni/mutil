@@ -95,7 +95,7 @@ func AutoCorrelate(buf [bufferSize]float32, sampleRate, thres float64) Pitch {
 func (p Pitch) CentsOff(mnum MIDINumber) float64 {
 	return math.Floor(consts.OctaveLen *
 		100 *
-		math.Log(float64(p)/float64(mnum.ToPitch())) /
+		math.Log(float64(p)/float64(*mnum.ToPitch())) /
 		math.Log(2),
 	)
 }

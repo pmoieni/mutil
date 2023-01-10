@@ -6,11 +6,11 @@ import (
 	"github.com/pmoieni/mutil/internal/consts"
 )
 
-type NoteState string
+type NoteState int
 
 const (
-	NOTE_ON  NoteState = "NOTE_ON"
-	NOTE_OFF NoteState = "NOTE_OFF"
+	NOTE_ON NoteState = iota
+	NOTE_OFF
 )
 
 type MIDINumber int
@@ -23,64 +23,8 @@ type MIDI struct {
 }
 
 func (num MIDINumber) ToNote() *Note {
-	type note struct {
-		Class
-		Accidental
-	}
-
-	nl := []note{
-		{
-			Class:      C,
-			Accidental: Natural,
-		},
-		{
-			Class:      C,
-			Accidental: Sharp,
-		},
-		{
-			Class:      D,
-			Accidental: Natural,
-		},
-		{
-			Class:      D,
-			Accidental: Sharp,
-		},
-		{
-			Class:      E,
-			Accidental: Natural,
-		},
-		{
-			Class:      F,
-			Accidental: Natural,
-		},
-		{
-			Class:      F,
-			Accidental: Sharp,
-		},
-		{
-			Class:      G,
-			Accidental: Natural,
-		},
-		{
-			Class:      G,
-			Accidental: Sharp,
-		},
-		{
-			Class:      A,
-			Accidental: Natural,
-		},
-		{
-			Class:      A,
-			Accidental: Sharp,
-		},
-		{
-			Class:      B,
-			Accidental: Natural,
-		},
-	}
-
-	n := nl[int(num)%len(nl)]
-	no := int(math.Abs(float64(int(num) / len(nl))))
+	n := Notes[int(num)%len(Notes)]
+	no := int(math.Abs(float64(int(num) / len(Notes))))
 
 	return &Note{
 		Class:      n.Class,
@@ -89,6 +33,7 @@ func (num MIDINumber) ToNote() *Note {
 	}
 }
 
-func (num MIDINumber) ToPitch() Pitch {
-	return Pitch(440 * math.Pow(2, float64((num-2)/consts.OctaveLen)))
+func (num MIDINumber) ToPitch() *Pitch {
+	p := Pitch(440 * math.Pow(2, float64((num-2)/consts.OctaveLen)))
+	return &p
 }

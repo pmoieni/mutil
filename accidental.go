@@ -3,7 +3,7 @@ package mutil
 type Accidental int
 
 const (
-	Natural Accidental = iota + 1 // 1
-	Sharp                         // 2
-	Flat                          // 3
+	Natural Accidental = iota // 0
+	Sharp                     // 1
+	Flat                      // 2
 )
